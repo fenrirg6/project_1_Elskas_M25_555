@@ -1,7 +1,7 @@
 #!/usr/bin/venv python3
 
 from labyrinth_game.constants import ROOMS # import of room constants
-from labyrinth_game.utils import describe_current_room
+from labyrinth_game.utils import describe_current_room, solve_puzzle, show_help
 from labyrinth_game.player_actions import get_input, move_player, take_item, use_item
 
 def process_command(game_state, command):
@@ -19,8 +19,16 @@ def process_command(game_state, command):
         case 'use':
             item_to_use = user_input[1]
             use_item(game_state, item_to_use)
-        case 'smth else':
-            pass
+        case "quit" | "exit" | "q" | "stop":
+            print("Спасибо за игру! До свидания.")
+            game_state["game_over"] = True
+        case 'solve':
+            solve_puzzle(game_state)
+        case 'help':
+            show_help()
+        case _:
+            print(f"Неизвестная комманда: '{command}'. Введите 'help' для вывода списка команд.")
+
 
 def main():
     # initializing game state dict
@@ -36,6 +44,6 @@ def main():
     # describe starting room
     describe_current_room(game_state)
 
-    while True:
+    while not game_state["game_over"]:
         player_input = get_input("\nЧто вы хотите сделать? >")
         process_command(game_state, player_input)
