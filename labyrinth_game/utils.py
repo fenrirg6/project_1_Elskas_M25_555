@@ -48,7 +48,8 @@ def solve_puzzle(game_state):
         return
 
     question, answer = puzzle
-
+    print(question)
+    print(answer)
     print(f"\n{question}: ")
 
     player_answer = input("Ваш ответ: ").strip().lower()
