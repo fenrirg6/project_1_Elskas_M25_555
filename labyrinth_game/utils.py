@@ -37,6 +37,10 @@ def solve_puzzle(game_state):
         print("Загадок здесь нет.")
         return
     else:
+        if current_room_name == "treasure_room": # Обработка специального случая, когда игрок может попытаться открыть сундук без ключей -- to refactor
+            attempt_open_treasure(game_state)
+            return
+
         solution = ROOMS[current_room_name]["puzzle"][1]
 
         print(puzzle)
@@ -56,7 +60,7 @@ def attempt_open_treasure(game_state):
     current_room_name = game_state["current_room"]
     current_room = ROOMS[current_room_name]
     items_in_room = current_room["items"]
-    inventory = game_state["inventory"]
+    inventory = game_state["player_inventory"]
 
     if "treasure_chest" not in items_in_room:
         print("Сундук уже открыт или отсутствует.")
@@ -72,7 +76,7 @@ def attempt_open_treasure(game_state):
         game_state["game_over"] = True
         return
 
-    try_code = input("Сундук заперт. ... Ввести код? (да/нет)")
+    try_code = input("Сундук заперт. ... Ввести код? (да/нет)\n> ")
     if try_code.lower() == "да":
         puzzle = current_room["puzzle"][0]
         solution = current_room["puzzle"][1]

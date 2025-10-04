@@ -1,7 +1,7 @@
 #!/usr/bin/venv python3
 
 from labyrinth_game.constants import ROOMS # import of room constants
-from labyrinth_game.utils import describe_current_room, solve_puzzle, show_help
+from labyrinth_game.utils import describe_current_room, solve_puzzle, show_help#, attempt_open_treasure
 from labyrinth_game.player_actions import get_input, move_player, take_item, use_item
 
 def process_command(game_state, command):
@@ -26,6 +26,8 @@ def process_command(game_state, command):
             solve_puzzle(game_state)
         case 'help':
             show_help()
+        case "inventory":
+            print(game_state["player_inventory"])
         case _:
             print(f"Неизвестная комманда: '{command}'. Введите 'help' для вывода списка команд.")
 
@@ -45,5 +47,5 @@ def main():
     describe_current_room(game_state)
 
     while not game_state["game_over"]:
-        player_input = get_input("\nЧто вы хотите сделать? >")
+        player_input = get_input("\nЧто вы хотите сделать?\n> ")
         process_command(game_state, player_input)

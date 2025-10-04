@@ -1,5 +1,5 @@
 from labyrinth_game.constants import ROOMS
-from labyrinth_game.utils import describe_current_room
+from labyrinth_game.utils import describe_current_room, attempt_open_treasure
 
 def show_inventory(game_state):
     inventory = game_state["inventory"]
@@ -54,14 +54,14 @@ def take_item(game_state, item_name):
         print("Такого предмета здесь нет.")
 
 def use_item(game_state, item_name):
-    inventory = game_state["inventory"]
+    inventory = game_state["player_inventory"]
 
     if item_name in inventory:
         match item_name:
             case "sword":
-                print("Стало немножко светлее...")
-            case "torch":
                 print("Вы чувствуете себя намного уверенее...")
+            case "torch":
+                print("Стало немножко светлее...")
             case "bronze_box":
                 print("Вы открываете бронзовую шкатулку...")
                 if "rusty_key" not in inventory:
@@ -69,6 +69,8 @@ def use_item(game_state, item_name):
                     inventory.append("rusty_key")
                 else:
                     print("Внутри шкатулки ничего не оказалось...")
+            case "rusty_key":
+                attempt_open_treasure(game_state)
             case _:
                 print(f"Вы не знаете, как использовать {item_name}")
     else:
