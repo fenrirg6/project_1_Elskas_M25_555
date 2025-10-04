@@ -1,11 +1,11 @@
 import math
-from labyrinth_game.constants import ROOMS
+from labyrinth_game.constants import ROOMS, COMMANDS
 
 def describe_current_room(game_state):
     current_room_name = game_state["current_room"]
     current_room = ROOMS[current_room_name]
 
-    # Название комнаты в верхнем регистре (например, == ENTRANCE ==)
+    # Название комнаты в верхнем регистре (н., == ENTRANCE ==)
     print(f"\n== {current_room_name.upper()} ==")
 
     # Описание
@@ -32,30 +32,43 @@ def describe_current_room(game_state):
 def solve_puzzle(game_state):
     current_room_name = game_state["current_room"]
     current_room = ROOMS[current_room_name]
-    puzzle = current_room["puzzle"][0]
+    puzzle = current_room["puzzle"]
+
+    # Возможность принимать альтернативные варианты ответов
+    alt_answers = {
+        "10": ["10", "десять"],
+        "3": ["3", "три"],
+        "4": ["4", "четыре"],
+        "8": ["8", "восемь"],
+        "2": ["2", "два"]
+    }
 
     if puzzle is None:
         print("Загадок здесь нет.")
         return
+
+    question, answer = puzzle
+
+    print(f"\n{question}: ")
+
+    player_answer = input("Ваш ответ: ").strip().lower()
+
+    if player_answer == answer or player_answer in alt_answers.get(answer, []):
+        print("\nПравильно! Загадка решена.")
+        current_room["puzzle"] = None
+        if current_room_name == "hall" and "treasure_key" not in game_state["player_inventory"]:
+            reward = "treasure_key"
+        elif current_room_name == "library" and "rusty_key" not in game_state["player_inventory"]:
+            reward = "rusty_key"
+        else:
+            reward = current_room["items"].pop(0)
+            if reward in game_state["player_inventory"]:
+                reward = "coin"
+        print(f"Вы получили {reward}!")
     else:
-        if current_room_name == "treasure_room": # Обработка специального случая, когда игрок может попытаться открыть сундук без ключей -- to refactor
-            attempt_open_treasure(game_state)
-            return
-
-        solution = ROOMS[current_room_name]["puzzle"][1]
-
-        print(puzzle)
-        while True:
-            user_guess = input("Ваш ответ: ")
-            if user_guess != solution:
-                print("Неверно. Попробуйте снова.")
-            elif (user_guess == 'quit') or (user_guess == 'exit') or (user_guess == 'cancel'):
-                break
-            else:
-                print("Успешно!")
-                ROOMS[current_room_name]["puzzle"] = None
-                break
-        return
+        print("Неверно. Попробуйте снова.")
+        if current_room_name == "trap_room":
+            trigger_trap(game_state)
 
 def attempt_open_treasure(game_state):
     current_room_name = game_state["current_room"]
@@ -97,6 +110,7 @@ def attempt_open_treasure(game_state):
 def pseudo_random(seed, modulo):
     x = math.sin(seed * 12.9898) * 43758.5453
     fraction = x - math.floor(x)
+    print(f"seed: {seed}, modulo: {modulo}, x: {x}, fraction: {fraction}") # debug print. to drop
     return int(fraction * modulo)
 
 def trigger_trap(game_state):
@@ -108,6 +122,7 @@ def trigger_trap(game_state):
         print(f"Вы потеряли предмет: {lost_item}")
     else:
         hit = pseudo_random(game_state["steps_taken"], 10)
+        print(hit) # debug print. to drop
         if hit < 3:
             print("Ловушка смертельна! Вы проиграли.")
             game_state["game_over"] = True
@@ -122,6 +137,7 @@ def random_event(game_state):
     current_room = ROOMS[game_state["current_room"]]
     inventory = game_state["player_inventory"]
 
+    # как будто выпадает только event_type == 0? нужно отладить и потенциально отдебажить
     if event_type == 0:
         print("Вы находите на полу блестящую монетку!")
         current_room["items"].append("coin")
@@ -136,12 +152,6 @@ def random_event(game_state):
 
 def show_help() -> None:
     """Показать список доступных команд."""
-    print("\nДоступные команды:")
-    print("  go <direction>  - перейти в направлении (north/south/east/west)")
-    print("  look            - осмотреть текущую комнату")
-    print("  take <item>     - поднять предмет")
-    print("  use <item>      - использовать предмет из инвентаря")
-    print("  inventory       - показать инвентарь")
-    print("  solve           - попытаться решить загадку в комнате")
-    print("  quit            - выйти из игры")
-    print("  help            - показать это сообщение")
+    print("\nДоступные команды:\n")
+    for cmd, desc in COMMANDS.items():
+        print(f"{cmd:<16} {desc}")

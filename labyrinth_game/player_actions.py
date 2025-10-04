@@ -21,7 +21,7 @@ def get_input(prompt = ">"):
 
 def move_player(game_state, direction):
     """
-    movement function
+    Функция перемещения по комнатам.
     """
     current_room_name = game_state["current_room"]
     current_room = ROOMS[current_room_name]
@@ -29,12 +29,21 @@ def move_player(game_state, direction):
 
     if direction in exits:
         new_room = exits[direction]
-        game_state["current_room"] = new_room
-        game_state["steps_taken"] += 1
-
-        print(f"\nВы идете на {direction}...")
-        random_event(game_state)  # Вызов функции рандомного события после успешного перемещения в новую комнату
-        describe_current_room(game_state)
+        if new_room == "treasure_room":
+            if "treasure_key" in game_state["player_inventory"] or "rusty_key" in game_state["player_inventory"]:
+                print("Вы используете найденный ключ, чтобы открыть путь в комнату сокровищ.")
+                game_state["current_room"] = new_room
+                game_state["steps_taken"] += 1
+                describe_current_room(game_state)
+                random_event(game_state)
+            else:
+                print("Дверь заперта. Нужен ключ, чтобы пройти дальше.")
+        else:
+            print(f"\nВы идете на {direction}...")
+            game_state["current_room"] = new_room
+            game_state["steps_taken"] += 1
+            random_event(game_state)
+            describe_current_room(game_state)
     else:
         print("Нельзя пойти в этом направлении.")
 
@@ -73,6 +82,6 @@ def use_item(game_state, item_name):
             case "rusty_key":
                 attempt_open_treasure(game_state)
             case _:
-                print(f"Вы не знаете, как использовать {item_name}")
+                print(f"Вы не знаете, как использовать {item_name}.")
     else:
         print("У вас нет такого предмета.")
