@@ -1,17 +1,28 @@
 from labyrinth_game.constants import ROOMS
-from labyrinth_game.utils import describe_current_room, attempt_open_treasure, random_event
+from labyrinth_game.utils import (
+    attempt_open_treasure,
+    describe_current_room,
+    random_event,
+)
+
 
 def show_inventory(game_state):
+    """
+    Функция, показывающая содержимое инвентаря игрока через game_state.
+    """
     inventory = game_state["inventory"]
 
-    if len(inventory) == 0:
+    if not inventory:
         print("\nВаш инвентарь пуст.")
     else:
         print("\nВаш инвентарь:")
         for item in inventory:
             print(f"  - {item}")
 
-def get_input(prompt = ">"):
+def get_input(prompt = "> "):
+    """
+    Функция, получающая ввод от пользователя с обработкой прерываний.
+    """
     try:
         user_input = input(prompt)
         return user_input.strip().lower()
@@ -21,7 +32,7 @@ def get_input(prompt = ">"):
 
 def move_player(game_state, direction):
     """
-    Функция перемещения по комнатам.
+    Функция перемещения по комнатам по указанному направлению direction.
     """
     current_room_name = game_state["current_room"]
     current_room = ROOMS[current_room_name]
@@ -30,8 +41,10 @@ def move_player(game_state, direction):
     if direction in exits:
         new_room = exits[direction]
         if new_room == "treasure_room":
-            if "treasure_key" in game_state["player_inventory"] or "rusty_key" in game_state["player_inventory"]:
-                print("Вы используете найденный ключ, чтобы открыть путь в комнату сокровищ.")
+            if ("treasure_key" in game_state["player_inventory"] or
+                    "rusty_key" in game_state["player_inventory"]):
+                print("\nВы используете найденный ключ,",
+                      "чтобы открыть путь в комнату сокровищ.")
                 game_state["current_room"] = new_room
                 game_state["steps_taken"] += 1
                 describe_current_room(game_state)
@@ -42,12 +55,15 @@ def move_player(game_state, direction):
             print(f"\nВы идете на {direction}...")
             game_state["current_room"] = new_room
             game_state["steps_taken"] += 1
-            random_event(game_state)
             describe_current_room(game_state)
+            random_event(game_state)
     else:
         print("Нельзя пойти в этом направлении.")
 
 def take_item(game_state, item_name):
+    """
+    Поднять предмет из текущей комнаты и добавить его в инвентарь.
+    """
     current_room_name = game_state["current_room"]
     current_room = ROOMS[current_room_name]
     items_in_room = current_room["items"]
@@ -56,20 +72,22 @@ def take_item(game_state, item_name):
         if item_name == "treasure_chest":
             print("Вы не можете поднять сундук, он слишком тяжелый.")
             return
-        # items_in_room.remove(item_name)
         game_state["player_inventory"].append(item_name)
-        current_room["items"].remove(item_name)
+        items_in_room.remove(item_name)
         print(f"Вы подняли: {item_name}")
     else:
         print("Такого предмета здесь нет.")
 
 def use_item(game_state, item_name):
+    """
+    Использовать предмет из инвентаря.
+    """
     inventory = game_state["player_inventory"]
 
     if item_name in inventory:
         match item_name:
             case "sword":
-                print("Вы чувствуете себя намного уверенее...")
+                print("Вы чувствуете себя намного увереннее...")
             case "torch":
                 print("Стало немножко светлее...")
             case "bronze_box":

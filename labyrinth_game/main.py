@@ -1,17 +1,29 @@
 #!/usr/bin/venv python3
+from labyrinth_game.player_actions import (
+    get_input,
+    move_player,
+    take_item,
+    use_item,
+)
+from labyrinth_game.utils import (
+    attempt_open_treasure,
+    describe_current_room,
+    show_help,
+    solve_puzzle,
+)
 
-from labyrinth_game.constants import ROOMS # import of room constants
-from labyrinth_game.utils import describe_current_room, solve_puzzle, show_help, attempt_open_treasure
-from labyrinth_game.player_actions import get_input, move_player, take_item, use_item
 
 def process_command(game_state, command):
+    """
+    Обработчик команд вводимых игроком.
+    """
     user_input = command.split()
     if not user_input:
         print("Введите команду. Наберите 'help' для списка команд.")
         return
     command = user_input[0]
 
-    # 3.2. Движение по односложным командам
+    # Движение по односложным командам
     simple_dirs = ["north", "south", "east", "west"]
     if command in simple_dirs:
         move_player(game_state, command)
@@ -51,17 +63,28 @@ def process_command(game_state, command):
         case "inventory":
             print(game_state["player_inventory"])
         case _:
-            print(f"Неизвестная комманда: '{command}'. Введите 'help' для вывода списка команд.")
+            print(f"Неизвестная команда: '{command}'. ",
+                  "Введите 'help' для вывода списка команд.")
 
 
 def main():
+    """
+    Точка входа в игру, хранящая в себе game_state.
+    """
     game_state = {
         'player_inventory': [],  # Инвентарь игрока
         'current_room': 'entrance',  # Текущая комната
         'game_over': False,  # Значения окончания игры
         'steps_taken': 0  # Количество шагов
     }
+    print("=" * 50)
     print("Добро пожаловать в Лабиринт сокровищ!")
+    print("=" * 50)
+    print("\nВы - отважный искатель приключений,",
+          "ищущий древние сокровища, спрятанные в этом лабиринте.")
+    print("Исследуйте комнаты, решайте загадки,",
+          "избегайте ловушек и достигните своей цели!")
+    print("\nНаберите 'help' для вывода списка доступных команд.")
 
     describe_current_room(game_state)
 

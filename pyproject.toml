@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "project_1_Elskas_M25_555"
 version = "0.1.0"
-description = ""
+description = "Текстовая adventure игра с головоломками и случайными событиями, реализованная на чистом Python с процедурной архитектурой."
 authors = ["fenrirg6 <rbhbk2@gmail.com>"]
 packages = [
      { include = "labyrinth_game" },
